@@ -6,7 +6,7 @@ import { FaEdit } from "react-icons/fa"
 import { AiFillDelete } from "react-icons/ai"
 import { v4 as uuidv4 } from 'uuid'
 
-export default function TaskPage() { 
+function TaskPage() { 
   const [todo, setTodo] = useState("")
   const [todos, setTodos] = useState([])
   const [showFinished, setShowFinished] = useState(true)
@@ -20,7 +20,9 @@ export default function TaskPage() {
   }, [])
 
   useEffect(() => {
-    localStorage.setItem("todos", JSON.stringify(todos))
+    if (todos.length > 0) {
+      localStorage.setItem("todos", JSON.stringify(todos))
+    }
   }, [todos])
 
   const toggleFinished = () => {
@@ -31,17 +33,22 @@ export default function TaskPage() {
     let t = todos.find(i => i.id === id) 
     if (t) {
       setTodo(t.todo)
-      setTodos(todos.filter(item => item.id !== id))
+      setTodos(prevTodos => prevTodos.filter(item => item.id !== id))
     }
   }
 
   const handleDelete = (id) => {  
-    setTodos(todos.filter(item => item.id !== id))
+    const updatedTodos = todos.filter(item => item.id !== id)
+    setTodos(updatedTodos)
+    localStorage.setItem("todos", JSON.stringify(updatedTodos))
   }
 
   const handleAdd = () => {
     if (todo.trim()) {
-      setTodos([...todos, {id: uuidv4(), todo, isCompleted: false}])
+      const newTodo = {id: uuidv4(), todo: todo.trim(), isCompleted: false}
+      const updatedTodos = [...todos, newTodo]
+      setTodos(updatedTodos)
+      localStorage.setItem("todos", JSON.stringify(updatedTodos))
       setTodo("") 
     }
   }
@@ -51,9 +58,11 @@ export default function TaskPage() {
   }
 
   const handleCheckbox = (id) => { 
-    setTodos(todos.map(item => 
+    const updatedTodos = todos.map(item => 
       item.id === id ? {...item, isCompleted: !item.isCompleted} : item
-    ))
+    )
+    setTodos(updatedTodos)
+    localStorage.setItem("todos", JSON.stringify(updatedTodos))
   }
 
   return (
@@ -168,4 +177,6 @@ export default function TaskPage() {
     </motion.div>
   )
 }
+
+export default TaskPage
 
