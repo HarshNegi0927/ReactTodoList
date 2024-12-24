@@ -1,10 +1,12 @@
+'use client'
+
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaEdit } from "react-icons/fa"
 import { AiFillDelete } from "react-icons/ai"
 import { v4 as uuidv4 } from 'uuid'
 
-function TaskPage() { 
+export default function TaskPage() { 
   const [todo, setTodo] = useState("")
   const [todos, setTodos] = useState([])
   const [showFinished, setShowFinished] = useState(true)
@@ -17,9 +19,9 @@ function TaskPage() {
     }
   }, [])
 
-  const saveToLS = () => {
+  useEffect(() => {
     localStorage.setItem("todos", JSON.stringify(todos))
-  }
+  }, [todos])
 
   const toggleFinished = () => {
     setShowFinished(!showFinished)
@@ -27,21 +29,20 @@ function TaskPage() {
 
   const handleEdit = (id) => { 
     let t = todos.find(i => i.id === id) 
-    setTodo(t.todo)
-    setTodos(todos.filter(item => item.id !== id))
-    saveToLS()
+    if (t) {
+      setTodo(t.todo)
+      setTodos(todos.filter(item => item.id !== id))
+    }
   }
 
   const handleDelete = (id) => {  
     setTodos(todos.filter(item => item.id !== id))
-    saveToLS()
   }
 
   const handleAdd = () => {
     if (todo.trim()) {
       setTodos([...todos, {id: uuidv4(), todo, isCompleted: false}])
       setTodo("") 
-      saveToLS()
     }
   }
 
@@ -53,7 +54,6 @@ function TaskPage() {
     setTodos(todos.map(item => 
       item.id === id ? {...item, isCompleted: !item.isCompleted} : item
     ))
-    saveToLS()
   }
 
   return (
@@ -169,4 +169,3 @@ function TaskPage() {
   )
 }
 
-export default TaskPage
